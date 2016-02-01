@@ -1,13 +1,13 @@
-
+# -*- coding: utf-8 -*-
 
 from Actor2.Actor import Actor
-from Actor2.Actor import Registry
+from Actor2.Actor import ActorSystem
 
 
 class Pinger(Actor):
     def on_start(self):
         self.count = 0
-        self.pong = Ponger.spawn()
+        self.pong = ActorSystem().create(Ponger)
 
     def on_receive(self, message, sender):
         print(message, self.count)
@@ -35,7 +35,9 @@ class Ponger(Actor):
 
 
 if __name__ == "__main__":
-    ping = Pinger.spawn()
-    print Registry().actors
+    ping = ActorSystem().create(Pinger)
     ping.tell('start', None)
-    Registry().stop_all()
+    ActorSystem().sleep(1)
+
+    # TODO: registry 혹은 context 구현
+    # TODO: ask ? future 구현

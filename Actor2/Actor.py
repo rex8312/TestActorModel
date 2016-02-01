@@ -10,7 +10,6 @@ class Actor(gevent.Greenlet):
     def spawn(cls, *args, **kwargs):
         actor = cls(*args, **kwargs)
         actor.on_start()
-        Registry().register(actor)
         actor.start(*args, **kwargs)
         return actor
 
@@ -38,15 +37,24 @@ class Actor(gevent.Greenlet):
         gevent.sleep(seconds)
 
 
-class Registry(object):
+class ActorSystem(object):
     __metaclass__ = Singleton
 
     def __init__(self):
-        super(Registry, self).__init__()
-        self.actors = list()
+        super(ActorSystem, self).__init__()
+        self.child_actors = list()
 
-    def register(self, actor):
-        self.actors.append(actor)
+    def create(self, cls, *args, **kwargs):
+        actor = cls.spawn(*args, **kwargs)
+        actor.context = self
+        self.child_actors.append(actor)
+        return actor
 
     def stop_all(self):
-        gevent.joinall(self.actors)
+        map(lambda x: x.tell("stop", None), self.child_actors)
+
+    def join_all(self):
+        gevent.joinall(self.child_actors)
+
+    def sleep(self, seconds):
+        gevent.sleep(seconds)
