@@ -39,5 +39,3 @@ if __name__ == "__main__":
     ping.tell('start', None)
     ActorSystem().sleep(1)
 
-    # TODO: registry 혹은 context 구현
-    # TODO: ask ? future 구현
